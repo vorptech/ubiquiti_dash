@@ -374,7 +374,7 @@ def renderizar_card(host: dict, idx: int) -> str:
     # Backup
     backup_raw = host.get("latestBackupTime")
     backup_str = formatar_data_brt(backup_raw, apenas_data=True)
-    texto_backup = f"BKP: {backup_str}" if backup_str else "Sem Backup"
+    texto_backup = f"💾 BKP: {backup_str}" if backup_str else "💾 Sem Backup"
 
     # Firmware update
     fw_update = (estado.get("firmwareUpdate") or {}).get("latestAvailableVersion")
@@ -394,30 +394,27 @@ def renderizar_card(host: dict, idx: int) -> str:
     else:
         card_class = "device-card card-offline-antigo"
 
-    # ── Badge de status ──
+    # ── Badge + uptime ──
     if is_online:
-        badge_html = f'<span class="badge badge-online">● ONLINE</span>'
-        status_extra = f'<span class="uptime-chip">⏱ Up {uptime_str}</span>'
+        badge_html = f'<span class="badge badge-online">&#9679; ONLINE</span>'
+        uptime_html = f'<span class="uptime-chip">&#9201; Up {uptime_str}</span>'
     else:
-        badge_html = f'<span class="badge badge-offline">● OFFLINE</span>'
-        status_extra = ""
+        badge_html = f'<span class="badge badge-offline">&#9679; OFFLINE</span>'
+        uptime_html = ''
 
     # ── Tags ──
-    tags = f'<span class="tag tag-backup">💾 {texto_backup}</span>'
+    tags_html = f'<span class="mini-tag">{texto_backup}</span>'
     if fw_update:
-        tags += f'<span class="tag tag-update">⬆ FW {nova_versao}</span>'
+        tags_html += f'<span class="mini-tag tag-update">&#11014; FW {nova_versao}</span>'
     if not is_online and ultima_mudanca:
-        tags += f'<span class="tag tag-offline-time">🕒 {formatar_duracao(horas_offline)} offline</span>'
+        tags_html += f'<span class="mini-tag tag-offline-time">&#128338; {formatar_duracao(horas_offline)} offline</span>'
 
     # ── WAN ──
     wans = estado.get("wans", [])
     if not is_online:
-        wan_html = f'''
-        <div class="wan-row wan-row-offline">
-            🔴 <b>OFFLINE</b> — Caiu em {data_queda}
-        </div>'''
+        wan_html = f'<div class="wan-box wan-offline">&#128308; <b>OFFLINE</b> &mdash; Caiu em {data_queda}</div>'
     elif not wans:
-        wan_html = '<div class="wan-row">🔌 WAN: informação indisponível</div>'
+        wan_html = '<div class="wan-box">&#128268; WAN indispon&iacute;vel</div>'
     else:
         wan_html = ""
         for wan in wans:
@@ -427,36 +424,25 @@ def renderizar_card(host: dict, idx: int) -> str:
             iface = wan.get("interface", "") or ""
             nome_link = f"{tipo} ({iface})" if iface else tipo
             if plugged:
-                wan_html += f'<div class="wan-row">🟢 <b>{nome_link}</b>: {wan_ip}</div>'
+                wan_html += f'<div class="wan-box">&#128994; <b>{nome_link}</b>: {wan_ip}</div>'
             else:
-                wan_html += f'<div class="wan-row wan-row-offline">🔴 <b>{nome_link}</b>: Desconectado</div>'
+                wan_html += f'<div class="wan-box wan-offline">&#128308; <b>{nome_link}</b>: Desconectado</div>'
 
-    card = f"""
-    <div class="{card_class}">
-        <div class="card-header">
-            <div class="device-name" title="{nome}">{nome}</div>
-            {badge_html}
-        </div>
-        <div class="hw-tag" title="{hardware}">⚙ {hardware}</div>
-        {status_extra}
-        <div style="margin-top: 10px;">
-            <div class="info-row">
-                <span class="info-label">IP Público:</span>
-                <span class="info-value">{ip_publico}</span>
-            </div>
-            <div class="info-row" title="{redes_str}">
-                <span class="info-label">Redes/VLANs:</span>
-                <span class="info-value" style="overflow:hidden;text-overflow:ellipsis;">{redes_str}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Firmware:</span>
-                <span class="info-value">v{versao}</span>
-            </div>
-        </div>
-        <div class="tags-row">{tags}</div>
-        <div class="wan-section">{wan_html}</div>
-    </div>
-    """
+    card = (
+        f'<div class="{card_class}">'
+        f'<div class="host-name" title="{nome}">{nome}</div>'
+        f'<div style="margin-bottom:6px;">{badge_html} {uptime_html}</div>'
+        f'<span class="hw-name">&#9881; {hardware}</span>'
+        f'<div class="host-info">'
+        f'&#127760; <b>IP P&uacute;blico:</b> {ip_publico}<br>'
+        f'<span title="{redes_str}" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+        f'&#127968; <b>Redes/VLANs:</b> {redes_str}</span>'
+        f'&#128260; <b>Firmware:</b> v{versao}'
+        f'</div>'
+        f'<div class="tags-container">{tags_html}</div>'
+        f'<div class="wan-container">{wan_html}</div>'
+        f'</div>'
+    )
     return card
 
 
