@@ -81,7 +81,7 @@ header {visibility: hidden;}
 .card-offline-antigo {
     border: 2px solid #7F1D1D;
     box-shadow: 0 0 8px rgba(239,68,68,0.1);
-    opacity: 0.85;
+    border-top: 4px solid #7F1D1D;
 }
 
 .host-name {
@@ -150,60 +150,57 @@ header {visibility: hidden;}
     margin-top: 4px;
 }
 
-/* Métricas — botões clicáveis */
-.metric-btn button {
+/* Métricas — card (número HTML) + botão de filtro */
+.metric-card-box {
+    background: #111827;
+    border: 1px solid #1F2937;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 18px 10px 10px;
+    text-align: center;
+}
+.metric-num {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1;
+}
+.metric-sublabel {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #4B5563;
+    margin-top: 6px;
+}
+.mn-total   { color: #60A5FA; }
+.mn-online  { color: #10B981; }
+.mn-offline { color: #EF4444; }
+.mn-alert   { color: #FBBF24; }
+
+/* Botão de filtro (parte de baixo do card) */
+[data-testid="stColumn"] [data-testid="stButton"] button {
     background: #111827 !important;
     border: 1px solid #1F2937 !important;
-    border-radius: 10px !important;
+    border-top: none !important;
+    border-radius: 0 0 10px 10px !important;
     width: 100% !important;
-    height: 110px !important;
-    cursor: pointer !important;
-    transition: all 0.15s ease !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: inherit !important;
-}
-.metric-btn button:hover {
-    background: #1F2937 !important;
-    border-color: #4B5563 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-}
-.metric-btn button p {
-    margin: 0 !important;
-    line-height: 1.2 !important;
-    text-align: center !important;
-}
-
-/* Número grande no topo do botão */
-.metric-btn button p:first-child {
-    font-size: 48px !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-}
-/* Label pequeno embaixo */
-.metric-btn button p:last-child {
+    color: #64748B !important;
     font-size: 11px !important;
     font-weight: 600 !important;
-    letter-spacing: 0.6px !important;
-    text-transform: uppercase !important;
-    color: #64748B !important;
-    margin-top: 6px !important;
+    letter-spacing: 0.5px !important;
+    padding: 6px 0 !important;
+    transition: all 0.15s ease !important;
 }
-
-/* Cores por tipo */
-.metric-total  button p:first-child { color: #60A5FA !important; }
-.metric-online button p:first-child { color: #10B981 !important; }
-.metric-offline button p:first-child { color: #EF4444 !important; }
-.metric-alert  button p:first-child { color: #FBBF24 !important; }
-
-/* Botão ativo (filtro selecionado) */
-.metric-ativo button {
-    border-color: #4B5563 !important;
-    background: #1E2837 !important;
-    box-shadow: inset 0 0 0 2px #374151 !important;
+[data-testid="stColumn"] [data-testid="stButton"] button:hover {
+    background: #1F2937 !important;
+    color: #CBD5E1 !important;
+    border-color: #374151 !important;
+}
+/* Botão ativo */
+.metric-ativo [data-testid="stButton"] button {
+    background: #1E293B !important;
+    color: #94A3B8 !important;
+    border-color: #374151 !important;
 }
 
 /* Barra de progresso */
@@ -529,36 +526,32 @@ filtro_btn_ativo = st.session_state.filtro_btn
 m1, m2, m3, m4 = st.columns(4)
 
 with m1:
-    cls = "metric-btn metric-total" + (" metric-ativo" if filtro_btn_ativo == "Todos" else "")
-    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
-    if st.button(f"{total}\n\nTotal de Dispositivos", key="btn_total", use_container_width=True):
+    ativo = " metric-ativo" if filtro_btn_ativo == "Todos" else ""
+    st.markdown(f'<div class="metric-card-box{ativo}"><div class="metric-num mn-total">{total}</div><div class="metric-sublabel">Total de Dispositivos</div></div>', unsafe_allow_html=True)
+    if st.button("VER TODOS", key="btn_total", use_container_width=True):
         st.session_state.filtro_btn = "Todos"
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with m2:
-    cls = "metric-btn metric-online" + (" metric-ativo" if filtro_btn_ativo == "Online" else "")
-    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
-    if st.button(f"{online}\n\nOnline", key="btn_online", use_container_width=True):
+    ativo = " metric-ativo" if filtro_btn_ativo == "Online" else ""
+    st.markdown(f'<div class="metric-card-box{ativo}"><div class="metric-num mn-online">{online}</div><div class="metric-sublabel">Online</div></div>', unsafe_allow_html=True)
+    if st.button("VER ONLINE", key="btn_online", use_container_width=True):
         st.session_state.filtro_btn = "Online"
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with m3:
-    cls = "metric-btn metric-offline" + (" metric-ativo" if filtro_btn_ativo == "Offline" else "")
-    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
-    if st.button(f"{offline}\n\nOffline", key="btn_offline", use_container_width=True):
+    ativo = " metric-ativo" if filtro_btn_ativo == "Offline" else ""
+    st.markdown(f'<div class="metric-card-box{ativo}"><div class="metric-num mn-offline">{offline}</div><div class="metric-sublabel">Offline</div></div>', unsafe_allow_html=True)
+    if st.button("VER OFFLINE", key="btn_offline", use_container_width=True):
         st.session_state.filtro_btn = "Offline"
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with m4:
-    cls = "metric-btn metric-alert" + (" metric-ativo" if filtro_btn_ativo == "Firmware" else "")
-    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
-    if st.button(f"{fw_alerts}\n\nUpdates Pendentes", key="btn_fw", use_container_width=True):
+    ativo = " metric-ativo" if filtro_btn_ativo == "Firmware" else ""
+    st.markdown(f'<div class="metric-card-box{ativo}"><div class="metric-num mn-alert">{fw_alerts}</div><div class="metric-sublabel">Updates Pendentes</div></div>', unsafe_allow_html=True)
+    if st.button("VER UPDATES", key="btn_fw", use_container_width=True):
         st.session_state.filtro_btn = "Firmware"
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
