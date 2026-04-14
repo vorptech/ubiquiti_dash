@@ -150,31 +150,61 @@ header {visibility: hidden;}
     margin-top: 4px;
 }
 
-/* Métricas */
-.metric-card {
-    background: #111827;
-    border: 1px solid #1F2937;
-    border-radius: 10px;
-    padding: 14px 18px;
-    text-align: center;
+/* Métricas — botões clicáveis */
+.metric-btn button {
+    background: #111827 !important;
+    border: 1px solid #1F2937 !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    height: 110px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: inherit !important;
 }
-.metric-value {
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1;
+.metric-btn button:hover {
+    background: #1F2937 !important;
+    border-color: #4B5563 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
 }
-.metric-label {
-    font-size: 11px;
-    color: #64748B;
-    margin-top: 4px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+.metric-btn button p {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
 }
-.metric-online  { color: #10B981; }
-.metric-offline { color: #EF4444; }
-.metric-total   { color: #60A5FA; }
-.metric-alert   { color: #FBBF24; }
+
+/* Número grande no topo do botão */
+.metric-btn button p:first-child {
+    font-size: 48px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+}
+/* Label pequeno embaixo */
+.metric-btn button p:last-child {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+    color: #64748B !important;
+    margin-top: 6px !important;
+}
+
+/* Cores por tipo */
+.metric-total  button p:first-child { color: #60A5FA !important; }
+.metric-online button p:first-child { color: #10B981 !important; }
+.metric-offline button p:first-child { color: #EF4444 !important; }
+.metric-alert  button p:first-child { color: #FBBF24 !important; }
+
+/* Botão ativo (filtro selecionado) */
+.metric-ativo button {
+    border-color: #4B5563 !important;
+    background: #1E2837 !important;
+    box-shadow: inset 0 0 0 2px #374151 !important;
+}
 
 /* Barra de progresso */
 .stProgress > div > div > div > div {
@@ -399,11 +429,6 @@ with st.sidebar:
         help="Filtra por qualquer parte do nome do dispositivo",
     )
 
-    filtro_status = st.selectbox(
-        "Status",
-        options=["Todos", "Online", "Offline"],
-    )
-
     filtro_offline = st.selectbox(
         "Tempo offline",
         options=[
@@ -487,63 +512,8 @@ def tem_fw_update(host: dict) -> bool:
     return bool(fw.get("latestAvailableVersion"))
 
 
-hosts_filtrados = list(todos_hosts)
-
-# Filtro de busca por nome
-if filtro_busca.strip():
-    termo = filtro_busca.strip().lower()
-    hosts_filtrados = [
-        h for h in hosts_filtrados
-        if termo in (h.get("reportedState", {}).get("name") or "").lower()
-    ]
-
-# Filtro de status
-if filtro_status == "Online":
-    hosts_filtrados = [h for h in hosts_filtrados if is_online_host(h)]
-elif filtro_status == "Offline":
-    hosts_filtrados = [h for h in hosts_filtrados if not is_online_host(h)]
-
-# Filtro de tempo offline
-if filtro_offline != "Todos":
-    def _horas(h):
-        return calcular_horas_offline(h.get("lastConnectionStateChange"))
-
-    if filtro_offline == "Última hora":
-        hosts_filtrados = [
-            h for h in hosts_filtrados
-            if not is_online_host(h) and _horas(h) <= 1
-        ]
-    elif filtro_offline == "Últimas 24h":
-        hosts_filtrados = [
-            h for h in hosts_filtrados
-            if not is_online_host(h) and _horas(h) <= 24
-        ]
-    elif filtro_offline == "Últimos 7 dias":
-        hosts_filtrados = [
-            h for h in hosts_filtrados
-            if not is_online_host(h) and _horas(h) <= 168
-        ]
-    elif filtro_offline == "Mais de 7 dias":
-        hosts_filtrados = [
-            h for h in hosts_filtrados
-            if not is_online_host(h) and _horas(h) > 168
-        ]
-
-# Filtro de firmware
-if filtro_firmware:
-    hosts_filtrados = [h for h in hosts_filtrados if tem_fw_update(h)]
-
-# Ordenação: offline primeiro, depois por nome
-hosts_filtrados.sort(
-    key=lambda h: (
-        is_online_host(h),                               # False < True → offline sobe
-        (h.get("reportedState") or {}).get("name", "").lower(),
-    )
-)
-
-
 # ─────────────────────────────────────────────
-# Métricas de resumo
+# Métricas clicáveis — filtro por botão
 # ─────────────────────────────────────────────
 
 total = len(todos_hosts)
@@ -551,45 +521,94 @@ online = sum(1 for h in todos_hosts if is_online_host(h))
 offline = total - online
 fw_alerts = sum(1 for h in todos_hosts if tem_fw_update(h))
 
+if "filtro_btn" not in st.session_state:
+    st.session_state.filtro_btn = "Todos"
+
+filtro_btn_ativo = st.session_state.filtro_btn
+
 m1, m2, m3, m4 = st.columns(4)
 
 with m1:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-value metric-total">{total}</div>
-        <div class="metric-label">Total de Dispositivos</div>
-    </div>
-    """, unsafe_allow_html=True)
+    cls = "metric-btn metric-total" + (" metric-ativo" if filtro_btn_ativo == "Todos" else "")
+    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
+    if st.button(f"{total}\n\nTotal de Dispositivos", key="btn_total", use_container_width=True):
+        st.session_state.filtro_btn = "Todos"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with m2:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-value metric-online">{online}</div>
-        <div class="metric-label">Online</div>
-    </div>
-    """, unsafe_allow_html=True)
+    cls = "metric-btn metric-online" + (" metric-ativo" if filtro_btn_ativo == "Online" else "")
+    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
+    if st.button(f"{online}\n\nOnline", key="btn_online", use_container_width=True):
+        st.session_state.filtro_btn = "Online"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with m3:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-value metric-offline">{offline}</div>
-        <div class="metric-label">Offline</div>
-    </div>
-    """, unsafe_allow_html=True)
+    cls = "metric-btn metric-offline" + (" metric-ativo" if filtro_btn_ativo == "Offline" else "")
+    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
+    if st.button(f"{offline}\n\nOffline", key="btn_offline", use_container_width=True):
+        st.session_state.filtro_btn = "Offline"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with m4:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-value metric-alert">{fw_alerts}</div>
-        <div class="metric-label">Updates Pendentes</div>
-    </div>
-    """, unsafe_allow_html=True)
+    cls = "metric-btn metric-alert" + (" metric-ativo" if filtro_btn_ativo == "Firmware" else "")
+    st.markdown(f'<div class="{cls}">', unsafe_allow_html=True)
+    if st.button(f"{fw_alerts}\n\nUpdates Pendentes", key="btn_fw", use_container_width=True):
+        st.session_state.filtro_btn = "Firmware"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Resultado do filtro
-if filtro_busca or filtro_status != "Todos" or filtro_offline != "Todos" or filtro_firmware:
-    st.caption(f"Exibindo {len(hosts_filtrados)} de {total} dispositivos")
+# ─────────────────────────────────────────────
+# Aplica filtros
+# ─────────────────────────────────────────────
+
+hosts_filtrados = list(todos_hosts)
+
+# Filtro de busca por nome (sidebar)
+if filtro_busca.strip():
+    termo = filtro_busca.strip().lower()
+    hosts_filtrados = [
+        h for h in hosts_filtrados
+        if termo in (h.get("reportedState", {}).get("name") or "").lower()
+    ]
+
+# Filtro de tempo offline (sidebar)
+if filtro_offline != "Todos":
+    def _horas(h):
+        return calcular_horas_offline(h.get("lastConnectionStateChange"))
+
+    if filtro_offline == "Última hora":
+        hosts_filtrados = [h for h in hosts_filtrados if not is_online_host(h) and _horas(h) <= 1]
+    elif filtro_offline == "Últimas 24h":
+        hosts_filtrados = [h for h in hosts_filtrados if not is_online_host(h) and _horas(h) <= 24]
+    elif filtro_offline == "Últimos 7 dias":
+        hosts_filtrados = [h for h in hosts_filtrados if not is_online_host(h) and _horas(h) <= 168]
+    elif filtro_offline == "Mais de 7 dias":
+        hosts_filtrados = [h for h in hosts_filtrados if not is_online_host(h) and _horas(h) > 168]
+
+# Filtro dos botões de métrica
+if filtro_btn_ativo == "Online":
+    hosts_filtrados = [h for h in hosts_filtrados if is_online_host(h)]
+elif filtro_btn_ativo == "Offline":
+    hosts_filtrados = [h for h in hosts_filtrados if not is_online_host(h)]
+elif filtro_btn_ativo == "Firmware":
+    hosts_filtrados = [h for h in hosts_filtrados if tem_fw_update(h)]
+
+# Filtro de firmware do sidebar
+if filtro_firmware:
+    hosts_filtrados = [h for h in hosts_filtrados if tem_fw_update(h)]
+
+# Ordenação: offline primeiro, depois por nome
+hosts_filtrados.sort(
+    key=lambda h: (
+        is_online_host(h),
+        (h.get("reportedState") or {}).get("name", "").lower(),
+    )
+)
 
 
 # ─────────────────────────────────────────────
