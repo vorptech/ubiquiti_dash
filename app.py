@@ -37,6 +37,11 @@ header {visibility: hidden;}
     background-color: #0B0F19;
 }
 
+/* Remove espaço em branco no topo */
+[data-testid="stAppViewContainer"] > .main > .block-container {
+    padding-top: 1rem !important;
+}
+
 /* Sidebar */
 [data-testid="stSidebar"] {
     background-color: #111827;
@@ -50,157 +55,84 @@ header {visibility: hidden;}
     100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);  border-color: #EF4444; }
 }
 
-/* Cards */
+/* Cards — mesma estrutura de classes do v1 que o Streamlit renderiza corretamente */
 .device-card {
-    background: linear-gradient(145deg, #161D2F, #1A2135);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 16px;
-    border: 1px solid #1F2937;
+    background-color: #161A23;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: transform 0.2s;
+    border: 1px solid #2D3342;
     display: flex;
     flex-direction: column;
-    min-height: 280px;
-    transition: transform 0.2s ease;
-    position: relative;
+    height: 315px;
     overflow: hidden;
 }
-.device-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
+.device-card:hover { transform: translateY(-2px); }
 
-/* Card online */
-.card-online {
-    border-top: 3px solid #10B981;
-}
+.card-online  { border-top: 4px solid #10B981; }
 
-/* Card offline recente - pisca */
 .card-offline-recente {
     border: 2px solid #EF4444;
-    animation: pulso-vermelho 1.5s ease-in-out infinite;
+    animation: pulso-vermelho 1.5s infinite;
 }
 
-/* Card offline antigo - estático */
 .card-offline-antigo {
     border: 2px solid #7F1D1D;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.1);
-    opacity: 0.82;
+    box-shadow: 0 0 8px rgba(239,68,68,0.1);
+    opacity: 0.85;
 }
 
-/* Cabeçalho do card */
-.card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.device-name {
-    color: #F1F5F9;
-    font-size: 15px;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 72%;
-    letter-spacing: 0.2px;
-}
-
-/* Badges de status */
-.badge {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-.badge-online {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10B981;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-}
-.badge-offline {
-    background: rgba(239, 68, 68, 0.15);
-    color: #EF4444;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-}
-
-/* Hardware tag */
-.hw-tag {
-    font-size: 10px;
-    color: #64748B;
+.host-name {
+    color: #FFFFFF;
+    font-size: 20px;
+    font-weight: 800;
     margin-bottom: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: 0.3px;
 }
 
-/* Informações do card */
-.info-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #94A3B8;
-    font-size: 11px;
-    margin-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.info-label { color: #64748B; font-weight: 600; }
-.info-value { color: #CBD5E1; }
+.badge { padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.badge-online  { background: rgba(16,185,129,0.15); color: #10B981; border: 1px solid rgba(16,185,129,0.4); }
+.badge-offline { background: rgba(239,68,68,0.15);  color: #EF4444; border: 1px solid rgba(239,68,68,0.4); }
 
-/* Uptime */
 .uptime-chip {
     display: inline-block;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.25);
     color: #10B981;
     font-size: 10px;
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 12px;
-    margin-top: 4px;
+    margin-left: 6px;
 }
 
-/* Tags (backup, firmware) */
-.tags-row {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
-.tag {
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: 600;
-    border: 1px solid transparent;
-}
-.tag-backup  { background: rgba(30,41,59,0.8); color: #94A3B8; border-color: #334155; }
-.tag-update  { background: rgba(59,130,246,0.15); color: #60A5FA; border-color: rgba(59,130,246,0.4); }
-.tag-offline-time { background: rgba(239,68,68,0.12); color: #F87171; border-color: rgba(239,68,68,0.35); }
+.hw-name { font-size: 11px; color: #64748B; display: block; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Seção WAN */
-.wan-section {
-    margin-top: auto;
-    padding-top: 10px;
-    border-top: 1px solid #1E293B;
-}
-.wan-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 8px;
-    border-radius: 6px;
-    background: #0F172A;
-    margin-top: 5px;
+.host-info { color: #A0AEC0; font-size: 12px; margin-top: 8px; line-height: 1.7; }
+
+/* Tags */
+.tags-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.mini-tag { background-color: #2D3342; padding: 3px 7px; border-radius: 5px; font-size: 10px; color: #C5D0E6; }
+.tag-update { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #60A5FA; }
+.tag-offline-time { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #F87171; }
+
+/* WAN */
+.wan-container { margin-top: auto; }
+.wan-box {
+    margin-top: 6px;
+    padding: 5px 9px;
+    background-color: #1E2330;
+    border-radius: 5px;
     font-size: 11px;
-    color: #94A3B8;
+    color: #C5D0E6;
     border-left: 3px solid #3B82F6;
 }
-.wan-row-offline { border-left-color: #EF4444; color: #F87171; }
+.wan-offline { border-left-color: #EF4444; color: #F87171; }
 
 /* Título principal */
 .main-title {
@@ -490,7 +422,7 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    num_colunas = st.slider("Colunas na grade", min_value=1, max_value=5, value=4)
+    num_colunas = st.slider("Colunas na grade", min_value=1, max_value=6, value=5)
     st.markdown("---")
     st.caption("Vorp SafeCore & WIFI\nNOC Monitor v2.0")
 
@@ -520,7 +452,7 @@ with col_titulo:
     st.markdown("<h1 class='main-title'>Vorp SafeCore & WIFI</h1>", unsafe_allow_html=True)
     st.markdown(
         f"<p class='subtitle'>NOC Monitor &nbsp;|&nbsp; "
-        f"Última sincronização: <b>{time.strftime('%H:%M:%S')}</b></p>",
+        f"Última sincronização: <b>{(datetime.utcnow() - timedelta(hours=3)).strftime('%H:%M:%S')}</b></p>",
         unsafe_allow_html=True,
     )
     placeholder_progresso = st.empty()
