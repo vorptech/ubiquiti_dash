@@ -58,15 +58,15 @@ header {visibility: hidden;}
 /* Cards — mesma estrutura de classes do v1 que o Streamlit renderiza corretamente */
 .device-card {
     background-color: #161A23;
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 15px;
+    border-radius: 8px;
+    padding: 10px 11px;
+    margin-bottom: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     transition: transform 0.2s;
     border: 1px solid #2D3342;
     display: flex;
     flex-direction: column;
-    height: 315px;
+    height: 280px;
     overflow: hidden;
 }
 .device-card:hover { transform: translateY(-2px); }
@@ -86,9 +86,9 @@ header {visibility: hidden;}
 
 .host-name {
     color: #FFFFFF;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -113,7 +113,7 @@ header {visibility: hidden;}
 
 .hw-name { font-size: 11px; color: #64748B; display: block; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.host-info { color: #A0AEC0; font-size: 12px; margin-top: 8px; line-height: 1.7; }
+.host-info { color: #A0AEC0; font-size: 11px; margin-top: 5px; line-height: 1.6; }
 
 /* Tags */
 .tags-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
@@ -371,7 +371,7 @@ def renderizar_card(host: dict, idx: int) -> str:
     # ── WAN ──
     wans = estado.get("wans", [])
     if not is_online:
-        wan_html = f'<div class="wan-box wan-offline">&#128308; <b>OFFLINE</b> &mdash; Caiu em {data_queda}</div>'
+        wan_html = f'<div class="wan-box wan-offline">🔴 <b>OFFLINE</b> &mdash; desde {data_queda}</div>'
     elif not wans:
         wan_html = '<div class="wan-box">&#128268; WAN indispon&iacute;vel</div>'
     else:
@@ -444,7 +444,7 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    num_colunas = st.slider("Colunas na grade", min_value=1, max_value=6, value=5)
+    num_colunas = st.slider("Colunas na grade", min_value=1, max_value=8, value=6)
     st.markdown("---")
     st.caption("Vorp SafeCore & WIFI\nNOC Monitor v2.0")
 
