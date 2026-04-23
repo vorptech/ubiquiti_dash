@@ -10178,3 +10178,10 @@ To github.com:vorptech/ubiquiti_dash.git
  1 file changed, 4 insertions(+)
 To github.com:vorptech/ubiquiti_dash.git
    1617a6a..9e9da43  main -> main
+[main 5ba2dbf] auto-sync: 2026-04-23 16:15:01
+ 1 file changed, 4 insertions(+)
+ERROR: internal error performing authentication
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
