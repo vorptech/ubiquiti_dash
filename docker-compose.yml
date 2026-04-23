@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   dashboard:
     build: .
@@ -17,3 +15,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
+    networks:
+      - traefik_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ubqt-dash.rule=Host(`ubqt-dash.vorptech.com.br`)"
+      - "traefik.http.routers.ubqt-dash.entrypoints=websecure"
+      - "traefik.http.routers.ubqt-dash.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ubqt-dash.loadbalancer.server.port=8501"
+
+networks:
+  traefik_proxy:
+    external: true
