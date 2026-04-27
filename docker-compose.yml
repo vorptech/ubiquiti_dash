@@ -3,22 +3,15 @@ services:
     build: .
     container_name: vorp_noc_monitor
     restart: unless-stopped
-    ports:
-      - "8502:8501"
     env_file:
       - .env
     volumes:
       - ./logo.png:/app/logo.png:ro
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
     networks:
       - traefik_proxy
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
       - "traefik.http.routers.ubqt-dash.rule=Host(`ubqt-dash.vorptech.com.br`)"
       - "traefik.http.routers.ubqt-dash.entrypoints=websecure"
       - "traefik.http.routers.ubqt-dash.tls.certresolver=letsencrypt"
