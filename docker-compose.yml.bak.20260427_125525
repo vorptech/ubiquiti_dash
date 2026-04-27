@@ -22,7 +22,6 @@ services:
       - "traefik.http.routers.ubqt-dash.rule=Host(`ubqt-dash.vorptech.com.br`)"
       - "traefik.http.routers.ubqt-dash.entrypoints=websecure"
       - "traefik.http.routers.ubqt-dash.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.ubqt-dash.middlewares=authentik-sso@docker"
       - "traefik.http.services.ubqt-dash.loadbalancer.server.port=8501"
 
 networks:
